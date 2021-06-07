@@ -44,9 +44,8 @@ func InitDb() {
 	sqlDB.SetMaxOpenConns(100)
 
 	// SetConnMaxLifetime 设置了连接可复用的最大时间。
-	sqlDB.SetConnMaxLifetime(10*time.Second)
+	sqlDB.SetConnMaxLifetime(10 * time.Second)
 
 	// 可以通过Set设置附加参数，下面设置表的存储引擎为InnoDB
-	db.Set("gorm:table_options", "ENGINE=InnoDB").AutoMigrate(&User{})
+	db.Set("gorm:table_options", "ENGINE=InnoDB").AutoMigrate(&User{}, &DouBanBook{})
 }
-

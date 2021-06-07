@@ -12,8 +12,8 @@ import (
 )
 
 var (
-	AppMode string
-	Address string
+	AppMode  string
+	Address  string
 	HttpPort string
 	JWTkey   string
 
@@ -24,10 +24,13 @@ var (
 	DbPassword string
 	DbName     string
 
-	RedisHost   string
-	RedisPort   string
+	RedisHost     string
+	RedisUsername string
+	RedisPassword string
+	MaxIdle       int
+	MaxActive     int
+	IdleTimeout   int
 )
-
 
 func init() {
 	file, err := ini.Load("config/config.ini")
@@ -36,6 +39,7 @@ func init() {
 	}
 	LoadServer(file)
 	LoadDb(file)
+	LoadRedis(file)
 }
 
 // LoadServer 加载服务配置
@@ -54,4 +58,13 @@ func LoadDb(file *ini.File) {
 	DbUser = file.Section("database").Key("DbUser").Value()
 	DbPassword = file.Section("database").Key("DbPassword").Value()
 	DbName = file.Section("database").Key("DbName").Value()
+}
+
+func LoadRedis(file *ini.File) {
+	RedisHost = file.Section("redis").Key("RedisHost").Value()
+	RedisUsername = file.Section("redis").Key("RedisUsername").Value()
+	RedisPassword = file.Section("redis").Key("RedisPassword").Value()
+	MaxIdle, _ = file.Section("redis").Key("MaxIdle").Int()
+	MaxActive, _ = file.Section("redis").Key("MaxActive").Int()
+	IdleTimeout, _ = file.Section("redis").Key("IdleTimeout").Int()
 }

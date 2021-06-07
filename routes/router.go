@@ -32,6 +32,7 @@ func InitRouter() *gin.Engine {
 	NoAuthRouter := router.Group("api/v1")
 	{
 		NoAuthRouter.POST("user/add", v1.AddUser)
+		NoAuthRouter.GET("books", v1.GetBooks)
 	}
 
 	return router
