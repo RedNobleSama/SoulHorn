@@ -9,12 +9,8 @@ package model
 import (
 	"SoulHorn/utils/errmsg"
 	"SoulHorn/utils/gredis"
-	"context"
-	"encoding/json"
-	"fmt"
 	"github.com/jinzhu/gorm"
 	"github.com/shopspring/decimal"
-	"time"
 )
 
 // DouBanBook 豆瓣图书模型
@@ -47,20 +43,20 @@ func (b DouBanBook) GetBooks(pageSize int, pageNum int) ([]DouBanBook, int) {
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return nil, errmsg.ERROR
 	}
-	b.Cache(res)
+	gredis.Cache(res)
 	return res, errmsg.SUCCESS
 }
 
-func (b DouBanBook) Cache(data []DouBanBook) {
-	var ctx = context.Background()
-	redis := gredis.InitRedis()
-	marshal, err := json.Marshal(data)
-	if err != nil {
-		return
-	}
-	_, err = redis.Set(ctx, "moose-go", marshal, 10*time.Minute).Result()
-	if err != nil {
-		fmt.Println("失败")
-	}
-	fmt.Println("成功")
-}
+//func (b DouBanBook) Cache(data []DouBanBook) {
+//	var ctx = context.Background()
+//	redis := gredis.InitRedis()
+//	marshal, err := json.Marshal(data)
+//	if err != nil {
+//		return
+//	}
+//	_, err = redis.Set(ctx, "moose-go", marshal, 10*time.Minute).Result()
+//	if err != nil {
+//		fmt.Println("失败")
+//	}
+//	fmt.Println("成功")
+//}

@@ -9,6 +9,7 @@ package gredis
 import (
 	"SoulHorn/utils"
 	"context"
+	"encoding/json"
 	"fmt"
 	redis "github.com/go-redis/redis/v8"
 	"net"
@@ -17,8 +18,8 @@ import (
 
 var RedisClient *redis.Client
 
-// 初始化redis
-func InitRedis() *redis.Client {
+// InitRedis 初始化redis
+func init() {
 	RedisClient = redis.NewClient(&redis.Options{
 		//连接信息
 		Network:  "tcp",               //网络类型, tcp 或者 unix, 默认tcp
@@ -52,7 +53,7 @@ func InitRedis() *redis.Client {
 		) (net.Conn, error) {
 			netDialer := net.Dialer{
 				Timeout:   5 * time.Second,
-				KeepAlive: 5 * time.Minute,
+				KeepAlive: 60 * time.Minute,
 			}
 			return netDialer.Dial(network, addr)
 		},
@@ -69,6 +70,33 @@ func InitRedis() *redis.Client {
 	//ctx := context.Background()
 	//pong, err := RedisClient.Ping(ctx).Result()
 	//fmt.Println("Redis Ping =", pong, err)
+}
 
-	return RedisClient
+// Cache 缓存数据到db0
+func Cache(data interface{}) {
+	var ctx = context.Background()
+	marshal, err := json.Marshal(data)
+	if err != nil {
+		return
+	}
+	_, err = RedisClient.Set(ctx, "moose-go", marshal, 10*time.Minute).Result()
+	if err != nil {
+		fmt.Println("失败")
+	}
+	fmt.Println("成功")
+}
+
+//从缓存中获取数据
+func GetCache(data interface{}) {
+	var ctx = context.Background()
+	marshal, err := RedisClient.Get(ctx, "moose-go").Result()
+	if err != nil {
+		fmt.Println("失败")
+	}
+
+	err = json.Unmarshal([]byte(marshal), &data)
+	if err != nil {
+		fmt.Println("失败")
+	}
+
 }
