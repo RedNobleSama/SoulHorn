@@ -16,17 +16,17 @@ import (
 	"time"
 )
 
-var RedisClient *redis.Client
+//var RedisClient *redis.Client
 
 // InitRedis 初始化redis
-func init() {
-	RedisClient = redis.NewClient(&redis.Options{
+func InitRedis(dbNum int) *redis.Client {
+	RedisClient := redis.NewClient(&redis.Options{
 		//连接信息
 		Network:  "tcp",               //网络类型, tcp 或者 unix, 默认tcp
 		Addr:     utils.RedisHost,     //ip:port
 		Username: utils.RedisUsername, //用户名, 使用指定用户名验证当前连接
 		Password: utils.RedisPassword, //密码,
-		DB:       0,                   //连接后选中的redis数据库index
+		DB:       dbNum,               //连接后选中的redis数据库index
 
 		//命令执行失败时的重试策略
 		MaxRetries:      3,                      //命令执行失败时最大重试次数，默认3次重试。
@@ -70,33 +70,36 @@ func init() {
 	//ctx := context.Background()
 	//pong, err := RedisClient.Ping(ctx).Result()
 	//fmt.Println("Redis Ping =", pong, err)
+	return RedisClient
 }
 
 // Cache 缓存数据到db0
-func Cache(data interface{}) {
+func Cache(data interface{}, dbNum int) {
 	var ctx = context.Background()
+	r := InitRedis(dbNum)
 	marshal, err := json.Marshal(data)
 	if err != nil {
 		return
 	}
-	_, err = RedisClient.Set(ctx, "moose-go", marshal, 10*time.Minute).Result()
+	_, err = r.Set(ctx, "moose-go", marshal, 10*time.Minute).Result()
 	if err != nil {
 		fmt.Println("失败")
 	}
 	fmt.Println("成功")
 }
 
-//从缓存中获取数据
-func GetCache(data interface{}) {
-	var ctx = context.Background()
-	marshal, err := RedisClient.Get(ctx, "moose-go").Result()
-	if err != nil {
-		fmt.Println("失败")
-	}
-
-	err = json.Unmarshal([]byte(marshal), &data)
-	if err != nil {
-		fmt.Println("失败")
-	}
-
-}
+//
+//// GetCache 从缓存中获取数据
+//func GetCache(data interface{}) ( ,bool) {
+//	var ctx = context.Background()
+//	marshal, err := RedisClient.Get(ctx, "moose-go").Result()
+//	if err != nil {
+//		fmt.Println("获取结果失败，无结果")
+//		return false
+//	}
+//	err = json.Unmarshal([]byte(marshal), &data)
+//	if err != nil {
+//		fmt.Println("转义失败")
+//	}
+//	return data, true
+//}

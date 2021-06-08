@@ -8,7 +8,6 @@ package model
 
 import (
 	"SoulHorn/utils/errmsg"
-	"SoulHorn/utils/gredis"
 	"github.com/jinzhu/gorm"
 	"github.com/shopspring/decimal"
 )
@@ -39,24 +38,13 @@ type DouBanBook struct {
 
 func (b DouBanBook) GetBooks(pageSize int, pageNum int) ([]DouBanBook, int) {
 	var res []DouBanBook
+	//data, B gredis.GetCache(res) {
+	//	return res, errmsg.SUCCESS
+	//}
 	err := db.Limit(pageSize).Offset((pageNum - 1) * pageSize).Find(&res).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return nil, errmsg.ERROR
 	}
-	gredis.Cache(res)
+	//gredis.Cache(res, utils.BookDb)
 	return res, errmsg.SUCCESS
 }
-
-//func (b DouBanBook) Cache(data []DouBanBook) {
-//	var ctx = context.Background()
-//	redis := gredis.InitRedis()
-//	marshal, err := json.Marshal(data)
-//	if err != nil {
-//		return
-//	}
-//	_, err = redis.Set(ctx, "moose-go", marshal, 10*time.Minute).Result()
-//	if err != nil {
-//		fmt.Println("失败")
-//	}
-//	fmt.Println("成功")
-//}

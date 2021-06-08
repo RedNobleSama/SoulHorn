@@ -11,6 +11,7 @@ import (
 	_ "database/sql"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
+
 	"github.com/jinzhu/gorm"
 	"time"
 )
@@ -20,15 +21,16 @@ var err error
 
 // InitDb 加载数据库
 func InitDb() {
-	db, err = gorm.Open(utils.Db, fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local",
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local",
 		utils.DbUser,
 		utils.DbPassword,
 		utils.DbHost,
 		utils.DbPort,
 		utils.DbName,
-	))
+	)
+	db, err = gorm.Open(utils.Db, dsn)
 	if err != nil {
-		fmt.Println("数据库连接失败,检查参数", err)
+		panic("MySQL conn failed:" + err.Error())
 	}
 
 	//禁用表名的复数形式，如果设置为true，则表名为user
@@ -47,5 +49,6 @@ func InitDb() {
 	sqlDB.SetConnMaxLifetime(10 * time.Second)
 
 	// 可以通过Set设置附加参数，下面设置表的存储引擎为InnoDB
-	db.Set("gorm:table_options", "ENGINE=InnoDB").AutoMigrate(&User{}, &DouBanBook{})
+	_ = db.Set("gorm:table_options", "ENGINE=InnoDB").AutoMigrate(&User{}, &DouBanBook{})
+
 }

@@ -30,6 +30,8 @@ var (
 	MaxIdle       int
 	MaxActive     int
 	IdleTimeout   int
+	SessionDb     int
+	BookDb        int
 )
 
 func init() {
@@ -67,4 +69,6 @@ func LoadRedis(file *ini.File) {
 	MaxIdle, _ = file.Section("redis").Key("MaxIdle").Int()
 	MaxActive, _ = file.Section("redis").Key("MaxActive").Int()
 	IdleTimeout, _ = file.Section("redis").Key("IdleTimeout").Int()
+	SessionDb, _ = file.Section("redis").Key("SessionDb").Int()
+	BookDb, _ = file.Section("redis").Key("BookDb").Int()
 }
